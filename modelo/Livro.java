@@ -17,4 +17,10 @@ public class Livro extends Obra {
     public String toString() {
         return super.toString() + " | ISBN: " + isbn;
     }
+
+    @Override
+    public int getTempoEmprestimo() {
+        return 7;
+    }
+
 }
