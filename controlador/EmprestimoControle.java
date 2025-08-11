@@ -1,5 +1,8 @@
 package faculdade.projetoparapoo.controlador;
 
+import faculdade.projetoparapoo.exceptions.ObraNaoEncontradaException;
+import faculdade.projetoparapoo.exceptions.UsuarioNaoEncontradoException;
+import faculdade.projetoparapoo.modelo.Emprestavel;
 import faculdade.projetoparapoo.modelo.Emprestimo;
 import faculdade.projetoparapoo.modelo.Obra;
 import faculdade.projetoparapoo.modelo.Usuario;
@@ -13,7 +16,7 @@ import java.util.Optional;
 /**
  * Controlador para gerenciar empréstimos.
  */
-public class EmprestimoControle {
+public class EmprestimoControle implements Emprestavel{
 
     private List<Emprestimo> emprestimos;
     private final UsuarioControle usuarioControle;
@@ -32,27 +35,37 @@ public class EmprestimoControle {
      * @param matriculaUsuario Matrícula do usuário.
      * @return true se o empréstimo for realizado com sucesso, false caso contrário.
      */
-    public boolean realizarEmprestimo(String codigoObra, String matriculaUsuario) {
-        Optional<Usuario> usuarioOpt = usuarioControle.buscarUsuarioPorMatricula(matriculaUsuario);
-        Optional<Obra> obraOpt = obraControle.buscarObraPorCodigo(codigoObra);
+    @Override
+public boolean realizarEmprestimo(String codigoObra, String matriculaUsuario) throws ObraNaoEncontradaException, UsuarioNaoEncontradoException {
+    Optional<Usuario> usuarioOpt = usuarioControle.buscarUsuarioPorMatricula(matriculaUsuario);
+    Optional<Obra> obraOpt = obraControle.buscarObraPorCodigo(codigoObra);
 
-        if (usuarioOpt.isPresent() && obraOpt.isPresent()) {
-            Usuario usuario = usuarioOpt.get();
-            Obra obra = obraOpt.get();
-
-            // Verifica se a obra está disponível e se o usuário não tem multas pendentes
-            if (obra.getQuantidade() > 0 && !usuario.temMultasPendentes()) {
-                obra.setQuantidade(obra.getQuantidade() - 1);
-                LocalDate dataEmprestimo = LocalDate.now();
-                LocalDate dataDevolucaoPrevista = dataEmprestimo.plusDays(7); // Empréstimo de 7 dias
-
-                Emprestimo emprestimo = new Emprestimo(proximoIdEmprestimo++, usuario, obra, dataEmprestimo, dataDevolucaoPrevista);
-                emprestimos.add(emprestimo);
-                return true;
-            }
-        }
-        return false;
+    // Lança exceção se usuário não encontrado
+    if (usuarioOpt.isEmpty()) {
+        throw new UsuarioNaoEncontradoException("Usuário com matrícula " + matriculaUsuario + " não encontrado.");
     }
+    // Lança exceção se obra não encontrada
+    if (obraOpt.isEmpty()) {
+        throw new ObraNaoEncontradaException("Obra com código " + codigoObra + " não encontrada.");
+    }
+
+    Usuario usuario = usuarioOpt.get();
+    Obra obra = obraOpt.get();
+
+    // Verifica disponibilidade e multas
+    if (obra.getQuantidade() > 0 && !usuario.temMultasPendentes()) {
+        obra.setQuantidade(obra.getQuantidade() - 1);
+        LocalDate dataEmprestimo = LocalDate.now();
+        LocalDate dataDevolucaoPrevista = dataEmprestimo.plusDays(obra.getTempoEmprestimo());
+
+        Emprestimo emprestimo = new Emprestimo(proximoIdEmprestimo++, usuario, obra, dataEmprestimo, dataDevolucaoPrevista);
+        emprestimos.add(emprestimo);
+        return true;
+    }
+
+    return false;
+}
+
 
     /**
      * Devolve uma obra emprestada.
@@ -60,6 +73,7 @@ public class EmprestimoControle {
      * @param dataDevolucaoReal Data real da devolução.
      * @return true se a devolução for realizada com sucesso, false caso contrário.
      */
+    @Override
     public boolean devolverEmprestimo(int idEmprestimo, LocalDate dataDevolucaoReal) {
         Optional<Emprestimo> emprestimoOpt = buscarEmprestimoPorId(idEmprestimo);
 
@@ -111,4 +125,6 @@ public class EmprestimoControle {
     public Optional<Emprestimo> buscarEmprestimoPorId(int id) {
         return emprestimos.stream().filter(e -> e.getId() == id).findFirst();
     }
+
+    
 }
