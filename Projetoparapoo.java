@@ -22,11 +22,15 @@ public class Projetoparapoo {
             EmprestimoControle emprestimoControle = new EmprestimoControle(usuarioControle, obraControle);
             PagamentoControle pagamentoControle = new PagamentoControle(emprestimoControle);
 
-            // Adicionando alguns dados de exemplo
+            // acessos ao sistema
             usuarioControle.adicionarUsuario(new Usuario("admin", "123", "Administrador"));
+            usuarioControle.adicionarUsuario(new Usuario("prog", "789", "PROGRAMADORteste"));
+            usuarioControle.adicionarUsuario(new Usuario("bibl", "456", "Bibliotecario"));
+            usuarioControle.adicionarUsuario(new Usuario("estag", "123", "Estagiario"));
             obraControle.adicionarObra("livro", "O Senhor dos Anéis", "J.R.R. Tolkien", "978-0618053267", 1954, 5);
 
-            LoginFrame loginFrame = new LoginFrame(usuarioControle);
+            
+            LoginFrame loginFrame = new LoginFrame(usuarioControle, obraControle, emprestimoControle, pagamentoControle);
             loginFrame.setVisible(true);
 
             // O MainFrame será exibido após o login bem-sucedido.
