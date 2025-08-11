@@ -9,7 +9,7 @@ import faculdade.projetoparapoo.exceptions.UsuarioNaoEncontradoException;
 import java.time.LocalDate;
 
 public interface Emprestavel {
-    // Define o tempo máximo de empréstimo. O professor pediu um método getTempoEmprestimo().
+
     // A interface pode ser usada para definir métodos comuns de emprestar e devolver.
     boolean realizarEmprestimo(String codigoObra, String matriculaUsuario)throws ObraNaoEncontradaException, UsuarioNaoEncontradoException ;
     boolean devolverEmprestimo(int idEmprestimo, LocalDate dataDevolucaoReal);
