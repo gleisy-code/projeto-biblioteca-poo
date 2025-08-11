@@ -19,4 +19,11 @@ public class Revista extends Obra {
     public String toString() {
         return super.toString() + " | Editora: " + editora + " | ISSN: " + issn + " | Volume: " + volume;
     }
+
+    @Override
+    public int getTempoEmprestimo() {
+        return 3;
+    }
+
+
 }
