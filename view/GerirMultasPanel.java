@@ -23,7 +23,7 @@ public class GerirMultasPanel extends JPanel {
     
     private JButton botaoPagarMulta;
 
-    public GerirMultasPanel(PagamentoControle pagamentoControle, EmprestimoControle emprestimoControle) {
+    public GerirMultasPanel(PagamentoControle pagamentoControle, EmprestimoControle emprestimoControle, String perfilUsuario) {
         this.pagamentoControle = pagamentoControle;
         this.emprestimoControle = emprestimoControle;
 
@@ -40,6 +40,9 @@ public class GerirMultasPanel extends JPanel {
 
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
         botaoPagarMulta = new JButton("Marcar Multa como Paga");
+        if ("Estag".equalsIgnoreCase(perfilUsuario)||"admin".equalsIgnoreCase(perfilUsuario)) {
+            botaoPagarMulta.setEnabled(false);
+        }
         painelBotoes.add(botaoPagarMulta);
         
         add(scrollPane, BorderLayout.CENTER);
@@ -67,16 +70,31 @@ public class GerirMultasPanel extends JPanel {
         }
     }
     
-    private void carregarMultasPendentes() {
+    public void carregarMultasPendentes() {
         modeloLista.clear();
         List<Emprestimo> todosEmprestimos = emprestimoControle.buscarTodosEmprestimos();
+        System.out.println("Todos empréstimos: " + todosEmprestimos.size());
+        for (Emprestimo e : todosEmprestimos) {
+            System.out.println("Emprestimo ID=" + e.getId() + " Multa=" + e.getMulta() + " Pago? " + e.isMultaPaga());
+        }
         List<Emprestimo> multasPendentes = todosEmprestimos.stream()
                 .filter(e -> e.getMulta() > 0 && !e.isMultaPaga())
                 .collect(Collectors.toList());
-                
+        System.out.println("Multas pendentes encontradas: " + multasPendentes.size());
         for (Emprestimo e : multasPendentes) {
             modeloLista.addElement(e);
+            
+            System.out.println(
+    "ID=" + e.getId() +
+    " | Multa=" + e.getMulta() +
+    " | Pago? " + e.isMultaPaga() +
+    " | Data Devolução Prevista=" + e.getDataDevolucaoPrevista() +
+    " | Data Devolução Real=" + e.getDataDevolucaoReal()
+        );
+
         }
+        listaMultas.setModel(modeloLista);
+        listaMultas.repaint();
     }
 
     /**
