@@ -17,4 +17,10 @@ public class Artigo extends Obra {
     public String toString() {
         return super.toString() + " | DOI: " + doi;
     }
+
+    @Override
+    public int getTempoEmprestimo() {
+        return 2;
+    }
+
 }
