@@ -23,20 +23,17 @@ public class ObraControle {
     }
 
     public void adicionarObra(String tipo, String titulo, String autor, String identificador, int ano, int quantidade) {
-        Obra novaObra;
+    Obra novaObra;
         if ("livro".equalsIgnoreCase(tipo)) {
             novaObra = new Livro(titulo, autor, identificador, ano, quantidade);
         } else if ("artigo".equalsIgnoreCase(tipo)) {
             novaObra = new Artigo(titulo, autor, identificador, ano, quantidade);
+        } else if ("revista".equalsIgnoreCase(tipo)) {
+            novaObra = new Revista(titulo, autor, identificador, ano, quantidade);
         } else {
-            return;
+            return; // tipo inválido, não adiciona nada
         }
         obras.add(novaObra);
-    }
-
-    public void adicionarRevista(String titulo, String editora, String issn, int ano, int volume) {
-        Revista novaRevista = new Revista(titulo, editora, issn, ano, volume);
-        obras.add(novaRevista);
     }
 
     public List<Obra> buscarTodasObras() {
