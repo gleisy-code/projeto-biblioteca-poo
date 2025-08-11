@@ -15,12 +15,21 @@ import java.util.Optional;
  */
 public class LoginFrame extends JFrame {
     private final UsuarioControle usuarioControle;
+    private final ObraControle obraControle;
+    private final EmprestimoControle emprestimoControle;
+    private final PagamentoControle pagamentoControle;
+    
     private JTextField campoMatricula;
     private JPasswordField campoSenha;
     private JButton botaoLogin;
 
-    public LoginFrame(UsuarioControle usuarioControle) {
+    public LoginFrame(UsuarioControle usuarioControle, 
+                  ObraControle obraControle, EmprestimoControle emprestimoControle, 
+                  PagamentoControle pagamentoControle) {
         this.usuarioControle = usuarioControle;
+        this.obraControle=obraControle;
+        this.emprestimoControle=emprestimoControle;
+        this.pagamentoControle=pagamentoControle;
 
         setTitle("Login");
         setSize(350, 200);
@@ -71,10 +80,12 @@ public class LoginFrame extends JFrame {
                 this.dispose(); // Fecha a tela de login
 
                 // Inicializa o MainFrame
-                ObraControle obraControle = new ObraControle();
-                EmprestimoControle emprestimoControle = new EmprestimoControle(usuarioControle, obraControle);
-                PagamentoControle pagamentoControle = new PagamentoControle(emprestimoControle);
-                MainFrame mainFrame = new MainFrame(usuarioControle, obraControle, emprestimoControle, pagamentoControle);
+                MainFrame mainFrame = new MainFrame(
+                        usuarioLogado.get(),
+                        usuarioControle,
+                        obraControle,
+                        emprestimoControle,
+                        pagamentoControle);
                 mainFrame.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Matrícula ou senha inválida.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
