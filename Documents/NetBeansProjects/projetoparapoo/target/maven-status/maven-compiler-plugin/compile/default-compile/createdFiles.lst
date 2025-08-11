@@ -6,12 +6,14 @@ faculdade\projetoparapoo\exceptions\UsuarioNaoEncontradoException.class
 faculdade\projetoparapoo\controlador\EmprestimoControle.class
 faculdade\projetoparapoo\modelo\Emprestimo.class
 faculdade\projetoparapoo\modelo\Artigo.class
+faculdade\projetoparapoo\view\MainFrame$1.class
 faculdade\projetoparapoo\view\GerirMultasPanel.class
 faculdade\projetoparapoo\exceptions\ObraNaoEncontradaException.class
 faculdade\projetoparapoo\modelo\Usuario.class
 faculdade\projetoparapoo\view\GerirMultasPanel$MultaListCellRenderer.class
 faculdade\projetoparapoo\modelo\Livro.class
 faculdade\projetoparapoo\modelo\Revista.class
+faculdade\projetoparapoo\modelo\Emprestavel.class
 faculdade\projetoparapoo\view\LoginFrame.class
 faculdade\projetoparapoo\view\GerenciarObrasPanel.class
 faculdade\projetoparapoo\view\GerirEmprestimosPanel.class
