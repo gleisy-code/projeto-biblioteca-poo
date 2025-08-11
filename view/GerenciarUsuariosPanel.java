@@ -21,7 +21,7 @@ public class GerenciarUsuariosPanel extends JPanel {
     private JPasswordField campoSenha;
     private JButton botaoAdicionar, botaoRemover;
 
-    public GerenciarUsuariosPanel(UsuarioControle usuarioControle) {
+    public GerenciarUsuariosPanel(UsuarioControle usuarioControle,String perfilUsuario) {
         this.usuarioControle = usuarioControle;
 
         setLayout(new BorderLayout(10, 10));
@@ -65,6 +65,10 @@ public class GerenciarUsuariosPanel extends JPanel {
         botaoAdicionar.addActionListener(e -> adicionarUsuario());
         botaoRemover.addActionListener(e -> removerUsuario());
 
+        if ("Estag".equalsIgnoreCase( perfilUsuario)||"bibl".equalsIgnoreCase(perfilUsuario)) {
+            botaoAdicionar.setEnabled(false); //tira o direito de adicionar e tirar
+            botaoRemover.setEnabled(false);
+        }
         carregarUsuarios();
     }
 
