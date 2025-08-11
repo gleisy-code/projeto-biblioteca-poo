@@ -3,9 +3,12 @@ package faculdade.projetoparapoo.view;
 import faculdade.projetoparapoo.controlador.EmprestimoControle;
 import faculdade.projetoparapoo.controlador.ObraControle;
 import faculdade.projetoparapoo.controlador.UsuarioControle;
+import faculdade.projetoparapoo.exceptions.ObraNaoEncontradaException;
+import faculdade.projetoparapoo.exceptions.UsuarioNaoEncontradoException;
 import faculdade.projetoparapoo.modelo.Emprestimo;
 import faculdade.projetoparapoo.modelo.Obra;
 import faculdade.projetoparapoo.modelo.Usuario;
+import faculdade.projetoparapoo.view.GerirMultasPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -23,6 +26,7 @@ public class GerirEmprestimosPanel extends JPanel {
     private final EmprestimoControle emprestimoControle;
     private final ObraControle obraControle;
     private final UsuarioControle usuarioControle;
+    private final GerirMultasPanel painelMultas;
 
     private JTextField campoMatriculaEmprestimo;
     private JTextField campoCodigoObraEmprestimo;
@@ -34,10 +38,11 @@ public class GerirEmprestimosPanel extends JPanel {
 
     private JTextArea areaEmprestimos;
 
-    public GerirEmprestimosPanel(EmprestimoControle emprestimoControle, ObraControle obraControle, UsuarioControle usuarioControle) {
+    public GerirEmprestimosPanel(EmprestimoControle emprestimoControle, ObraControle obraControle, UsuarioControle usuarioControle, GerirMultasPanel painelMultas, String perfilUsuario) {
         this.emprestimoControle = emprestimoControle;
         this.obraControle = obraControle;
         this.usuarioControle = usuarioControle;
+        this.painelMultas=painelMultas;
 
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -100,40 +105,40 @@ public class GerirEmprestimosPanel extends JPanel {
         areaEmprestimos = new JTextArea();
         areaEmprestimos.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(areaEmprestimos);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Empréstimos Ativos e Devolvidos"));
+        scrollPane.setBorder(BorderFactory.createTitledBorder("RELATORIO: Empréstimos Ativos e Devolvidos"));
 
         add(painelEntrada, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+        
+        if ("Estag".equalsIgnoreCase(perfilUsuario)||"admin".equalsIgnoreCase(perfilUsuario)) {
+            scrollPane.setVisible(false);
+        }
+
 
         // Ações dos botões
         botaoRealizarEmprestimo.addActionListener(e -> realizarEmprestimo());
         botaoDevolverEmprestimo.addActionListener(e -> devolverEmprestimo());
+        if ("Estag".equalsIgnoreCase( perfilUsuario)) {
+            botaoRealizarEmprestimo.setEnabled(false); // desabilita botão de empréstimo
+        }
+        if ("admin".equalsIgnoreCase( perfilUsuario)) {
+            botaoDevolverEmprestimo.setEnabled(false);
+            botaoRealizarEmprestimo.setEnabled(false); // desabilita botão de empréstimo
+        }
 
         carregarEmprestimos();
     }
     
     private void realizarEmprestimo() {
-        String matricula = campoMatriculaEmprestimo.getText();
-        String codigoObra = campoCodigoObraEmprestimo.getText();
+    String matricula = campoMatriculaEmprestimo.getText();
+    String codigoObra = campoCodigoObraEmprestimo.getText();
 
-        if (matricula.isEmpty() || codigoObra.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos para realizar o empréstimo.", "Erro", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    if (matricula.isEmpty() || codigoObra.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos para realizar o empréstimo.", "Erro", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-        Optional<Usuario> usuarioOpt = usuarioControle.buscarUsuarioPorMatricula(matricula);
-        Optional<Obra> obraOpt = obraControle.buscarObraPorCodigo(codigoObra);
-
-        if (usuarioOpt.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Utilizador com a matrícula '" + matricula + "' não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (obraOpt.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Obra com o código '" + codigoObra + "' não encontrada.", "Erro", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
+    try {
         if (emprestimoControle.realizarEmprestimo(codigoObra, matricula)) {
             JOptionPane.showMessageDialog(this, "Empréstimo realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             carregarEmprestimos();
@@ -141,7 +146,13 @@ public class GerirEmprestimosPanel extends JPanel {
         } else {
             JOptionPane.showMessageDialog(this, "Não foi possível realizar o empréstimo. Verifique se a obra está disponível e se o usuário não tem multas pendentes.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
+    } catch (UsuarioNaoEncontradoException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    } catch (ObraNaoEncontradaException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
     }
+}
+
 
     private void devolverEmprestimo() {
         String idEmprestimoStr = campoIdEmprestimoDevolucao.getText();
@@ -172,6 +183,9 @@ public class GerirEmprestimosPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, mensagem, "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 carregarEmprestimos();
                 limparCamposDevolucao();
+                if (painelMultas != null) {
+                painelMultas.carregarMultasPendentes();
+            }
             } else {
                 JOptionPane.showMessageDialog(this, "Não foi possível realizar a devolução. A obra já pode ter sido devolvida.", "Erro", JOptionPane.ERROR_MESSAGE);
             }
