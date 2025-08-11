@@ -30,6 +30,8 @@ public abstract class Obra {
     public int getQuantidade() { return quantidade; }
     public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
 
+    // Método abstrato que as subclasses devem implementar
+    public abstract int getTempoEmprestimo();
     @Override
     public String toString() {
         return "Código: " + codigo + " | Título: " + titulo + " | Autor: " + autor + " | Ano: " + anoPublicacao;
